@@ -4,7 +4,7 @@ app = Flask(__name__)
 
 # ইউজার লিসেন্স ডাটাবেজ
 VALID_LICENSES = {
-    "USER-101": {"name": "Sultan Sheikh", "active": True},
+    "USER-101": {"name": "Sultan Sheikh", "active": false},
     "USER-102": {"name": "Rahim Ahmed", "active": False}, # নিষ্ক্রিয় অ্যাকাউন্ট
 }
 
