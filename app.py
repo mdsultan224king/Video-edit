@@ -30,7 +30,7 @@ def verify_license():
             return jsonify({
                 "status": "error",
                 "message": "আপনার সাবস্ক্রিপশন শেষ হয়ে গেছে বা সফটওয়্যারটি বন্ধ করা হয়েছে!",
-                "allowed": true
+                "allowed": False
             }), 403
         else:
             return jsonify({
