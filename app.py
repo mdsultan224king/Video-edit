@@ -2,32 +2,44 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# এটি আপনার ইউজার ডাটাবেজ (সহজে বোঝার জন্য ডিকশনারি হিসেবে দেওয়া হলো)
-# চাইলে এখানে লিসেন্স কি (Key) বা পিসির Hardware ID ব্যবহার করতে পারেন
+# ইউজার লিসেন্স ডাটাবেজ
 VALID_LICENSES = {
     "USER-101": {"name": "Sultan Sheikh", "active": True},
-    "USER-102": {"name": "Rahim Ahmed", "active": False}, # বন্ধ করা আছে
+    "USER-102": {"name": "Rahim Ahmed", "active": False}, # নিষ্ক্রিয় অ্যাকাউন্ট
 }
+
+@app.route('/', methods=['GET'])
+def home():
+    return jsonify({"status": "Server is running!"}), 200
 
 @app.route('/verify', methods=['POST'])
 def verify_license():
-    data = request.get_json()
-    license_key = data.get('license_key', '')
+    try:
+        data = request.get_json() or {}
+        license_key = data.get('license_key', '')
 
-    user = VALID_LICENSES.get(license_key)
+        user = VALID_LICENSES.get(license_key)
 
-    if user and user['active']:
-        return jsonify({
-            "status": "success",
-            "message": f"Welcome {user['name']}!",
-            "allowed": True
-        }), 200
-    else:
-        return jsonify({
-            "status": "error",
-            "message": "আপনার সাবস্ক্রিপশন শেষ হয়ে গেছে বা সফটওয়্যারটি বন্ধ করা হয়েছে!",
-            "allowed": False
-        }), 403
+        if user and user['active']:
+            return jsonify({
+                "status": "success",
+                "message": f"স্বাগতম {user['name']}!",
+                "allowed": True
+            }), 200
+        elif user and not user['active']:
+            return jsonify({
+                "status": "error",
+                "message": "আপনার সাবস্ক্রিপশন শেষ হয়ে গেছে বা সফটওয়্যারটি বন্ধ করা হয়েছে!",
+                "allowed": False
+            }), 403
+        else:
+            return jsonify({
+                "status": "error",
+                "message": "অবৈধ লিসেন্স কী (Invalid License Key)!",
+                "allowed": False
+            }), 404
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e), "allowed": False}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
