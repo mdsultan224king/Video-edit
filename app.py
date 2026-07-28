@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# ইউজার লিসেন্স ডাটাবেজ
+# ইউজার লাইসেন্স ডাটাবেজ
 VALID_LICENSES = {
     "USER-101": {"name": "Sultan Sheikh", "active": False},
     "USER-102": {"name": "Rahim Ahmed", "active": False},
