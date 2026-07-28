@@ -5,7 +5,8 @@ app = Flask(__name__)
 # ইউজার লিসেন্স ডাটাবেজ
 VALID_LICENSES = {
     "USER-101": {"name": "Sultan Sheikh", "active": False},
-    "USER-102": {"name": "Rahim Ahmed", "active": False}, # নিষ্ক্রিয় অ্যাকাউন্ট
+    "USER-102": {"name": "Rahim Ahmed", "active": False},
+        "Sultan-20066": {"name": "Rahim Ahmed", "active": True}, # নিষ্ক্রিয় অ্যাকাউন্ট
 }
 
 @app.route('/', methods=['GET'])
