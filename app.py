@@ -3,11 +3,7 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 
 # ইউজার লাইসেন্স ডাটাবেজ
-VALID_LICENSES = {
-    "USER-101": {"name": "Sultan Sheikh", "active": False},
-    "USER-102": {"name": "Rahim Ahmed", "active": False},
-        "Sultan-20066": {"name": "Sultan Shekh", "active": True}, # নিষ্ক্রিয় অ্যাকাউন্ট
-}
+VALID_LICENSES = {"hwid": "92851BF2-1ADC-DE1E-A7A6-345A6001C880"} 
 
 @app.route('/', methods=['GET'])
 def home():
