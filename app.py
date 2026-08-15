@@ -2,41 +2,86 @@ from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-# ইউজার লাইসেন্স ডাটাবেজ
-VALID_LICENSES = {"hwid": "92851BF2-1ADC-DE1E-A7A6-345A6001C880"} 
+# 🔒 অনুমোদিত HWID ডাটাবেজ (HWID অনুযায়ী ইউজারের তথ্য)
+VALID_HWIDS = {
+    "92851BF2-1ADC-DE1E-A7A6-345A6001C880": {
+        "name": "Sultan Sheikh",
+        "active": True,
+    },
+    "4C4C4544-004B-4D10-8032-B2C04F423532": {
+        "name": "User 2",
+        "active": True,
+    },
+    # নতুন কোনো পিসি যুক্ত করতে চাইলে নিচে এভাবে HWID বসিয়ে দিবেন
+}
 
-@app.route('/', methods=['GET'])
+
+@app.route("/", methods=["GET"])
 def home():
-    return jsonify({"status": "Server is running!"}), 200
+  return jsonify({"status": "Server is running!"}), 200
 
-@app.route('/verify', methods=['POST'])
+
+@app.route("/verify", methods=["POST"])
 def verify_license():
-    try:
-        data = request.get_json() or {}
-        license_key = data.get('license_key', '')
+  try:
+    data = request.get_json() or {}
 
-        user = VALID_LICENSES.get(license_key)
+    # ক্লায়েন্ট থেকে আসা HWID সংগ্রহ
+    user_hwid = data.get("hwid", "").strip()
 
-        if user and user['active']:
-            return jsonify({
-                "status": "success",
-                "message": f"স্বাগতম {user['name']}!",
-                "allowed": True
-            }), 200
-        elif user and not user['active']:
-            return jsonify({
-                "status": "error",
-                "message": "আপনার সাবস্ক্রিপশন শেষ হয়ে গেছে বা সফটওয়্যারটি বন্ধ করা হয়েছে!",
-                "allowed": False
-            }), 403
-        else:
-            return jsonify({
-                "status": "error",
-                "message": "অবৈধ লিসেন্স কী (Invalid License Key)!",
-                "allowed": False
-            }), 404
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e), "allowed": False}), 500
+    if not user_hwid:
+      return (
+          jsonify({
+              "status": "error",
+              "message": "পিসির HWID পাওয়া যায়নি!",
+              "allowed": False,
+          }),
+          400,
+      )
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    # ডাটাবেজে HWID সার্চ করা
+    user = VALID_HWIDS.get(user_hwid)
+
+    if user and user.get("active"):
+      return (
+          jsonify({
+              "status": "success",
+              "message": (
+                  f"ডিভাইস ভ্যালিডেশন সফল! স্বাগতম {user.get('name')}।"
+              ),
+              "allowed": True,
+          }),
+          200,
+      )
+
+    elif user and not user.get("active"):
+      return (
+          jsonify({
+              "status": "error",
+              "message": (
+                  "আপনার ডিভাইসের সাবস্ক্রিপশন শেষ বা বন্ধ করে দেওয়া হয়েছে!"
+              ),
+              "allowed": False,
+          }),
+          403,
+      )
+
+    else:
+      return (
+          jsonify({
+              "status": "error",
+              "message": "এই পিসিতে সফটওয়্যারটি ব্যবহারের অনুমতি নেই!",
+              "allowed": False,
+          }),
+          404,
+      )
+
+  except Exception as e:
+    return (
+        jsonify({"status": "error", "message": str(e), "allowed": False}),
+        500,
+    )
+
+
+if __name__ == "__main__":
+  app.run(host="0.0.0.0", port=5000)
